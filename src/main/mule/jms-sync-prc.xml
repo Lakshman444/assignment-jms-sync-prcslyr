@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="04834a52-fe92-433a-8948-0d8c7ecb58cd" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<flow name="jms-sync-prcFlow" doc:id="add41e74-a879-44ec-a714-f9567e6d7744" >
+		<ee:transform doc:name="Transform Message" doc:id="8543562c-500e-4c48-a9fb-1433ee7a1337" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	userId1: attributes.queryParams.userId1,
+	userId2: attributes.queryParams.userId2,
+	userId3: attributes.queryParams.userId3
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<jms:publish-consume doc:id="5c7a6b4d-76e9-47b4-8f54-1606c1d8b432" config-ref="JMS_Config" destination="sync" requestReplyPattern="NONE">
+			<jms:consume-configuration maximumWaitUnit="MINUTES" />
+		</jms:publish-consume>
+	</flow>
+</mule>
